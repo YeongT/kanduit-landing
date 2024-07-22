@@ -4,10 +4,12 @@ name: Deploy static content to Server
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["master", "github-actions"]
+    branches:
+      - master
+      - github-actions
 
   # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch: true
+  workflow_dispatch:
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.

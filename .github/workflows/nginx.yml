@@ -29,4 +29,4 @@ jobs:
       - name: Unlink previous commit
         run: rm /home/nginx/html
       - name: Link new commit
-        run: ln -s /home/nginx/commits/${GITHUB_SHA::7} /home/nginx/html
+        run: ln -s /home/nginx/commits/${GITHUB_SHA::7}/html /home/nginx/html

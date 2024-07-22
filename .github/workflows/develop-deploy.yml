@@ -4,8 +4,10 @@ on:
   # Runs on pushes targeting the default branch
   push:
     branches:
-      - master
-
+      - github-actions
+  pull_request:
+    branches:
+      - develop
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -37,7 +39,7 @@ jobs:
       # Update symbolic link
       - name: Update symbolic link
         run: |
-          target_path="/home/nginx/html"
+          target_path="/home/nginx/html-develop"
           
           if [ -L "$target_path" ]; then
             echo "Symbolic link already exists. Updating the link."

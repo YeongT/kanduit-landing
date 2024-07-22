@@ -1,0 +1,65 @@
+name: Deploy static content to Server
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches:
+      - master
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "nginx"
+  cancel-in-progress: false
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    runs-on: [self-hosted, oracle, kanduit]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Copy resource to commit folder
+      - name: Copy
+        run: |
+          commit_path="/home/nginx/commits/${GITHUB_SHA::7}"
+          if [ -d "$commit_path" ]; then
+            echo "Directory $commit_path already exists. Deleting it."
+            rm -rf "$commit_path"
+          fi
+          echo "Copying files to $commit_path."
+          mkdir -p "$commit_path"
+          cp -r . "$commit_path"
+
+      # Update symbolic link and clean up old files
+      - name: Update symbolic link
+        run: |
+          commit_path="/home/nginx/commits/${GITHUB_SHA::7}"
+          target_path="/home/nginx/html-master"
+          
+          # Ensure the target directory exists
+          if [ ! -d "$(dirname "$target_path")" ]; then
+            echo "Creating target directory $(dirname "$target_path")."
+            mkdir -p "$(dirname "$target_path")"
+          fi
+          
+          # Check if the target path is a symbolic link
+          if [ -L "$target_path" ]; then
+            # Find the original path the symlink was pointing to
+            original_path=$(readlink -f "$target_path")
+            echo "Symbolic link already exists. Updating the link."
+            ln -Tfs "$commit_path" "$target_path"
+          
+            # Delete the original path if it is not the new path
+            if [ -d "$original_path" ] && [ "$original_path" != "$commit_path" ]; then
+              echo "Deleting the original directory $original_path."
+              rm -rf "$original_path"
+            fi
+          else
+            echo "Symbolic link does not exist. Creating a new link."
+            ln -s "$commit_path" "$target_path"
+          fi

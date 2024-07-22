@@ -34,7 +34,7 @@ jobs:
           fi
           echo "Copying files to $commit_path."
           mkdir -p "$commit_path"
-          cp -r $(pwd) "$commit_path"
+          cp -r "$(pwd)/" "$commit_path"
 
       # Update symbolic link and clean up old files
       - name: Update symbolic link

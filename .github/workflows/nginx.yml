@@ -1,0 +1,30 @@
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Server
+
+on:
+  # Runs on pushes targeting the default branch
+  push:
+    branches: ["master", "github-actions"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch: true
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "nginx"
+  cancel-in-progress: false
+
+jobs:
+  # Single deploy job since we're just deploying
+  deploy:
+    runs-on: [self-hosted, oracle, kanduit]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Copy
+        run: cp -r . /home/nginx/commits/${GITHUB_SHA::7}
+      - name: Unlink previous commit
+        run: rm /home/nginx/html
+      - name: Link new commit
+        run: ln -s /home/nginx/commits/${GITHUB_SHA::7} /home/nginx/html

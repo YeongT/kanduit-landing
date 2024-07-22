@@ -24,9 +24,5 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Copy
-        run: cp -r . /home/nginx/commits/${GITHUB_SHA::7}
-      - name: Unlink previous commit
-        run: rm /home/nginx/html
-      - name: Link new commit
-        run: ln -s /home/nginx/commits/${GITHUB_SHA::7}/html /home/nginx/html
+      - name: Update symbolic link
+        run: ln -Tfs . /home/nginx/html

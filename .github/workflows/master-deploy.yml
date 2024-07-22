@@ -24,5 +24,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      # Copy resource to commit folder
+      - name: Copy
+        run: cp -r $(pwd) /home/nginx/commits/${GITHUB_SHA::7}
+
+      # Update symbolic link
       - name: Update symbolic link
-        run: ln -Tfs . /home/nginx/html
+        run: |
+          new_path=/home/nginx/commits/${GITHUB_SHA::7}/html
+          target="/home/nginx/html"
+          
+          if [ -L "$target" ]; then
+            echo "Symbolic link already exists. Updating the link."
+            ln -Tfs "$new_path" "$target"
+          else
+            echo "Symbolic link does not exist. Creating a new link."
+            ln -s "$new_path" "$target"
+          fi
